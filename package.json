@@ -1,6 +1,6 @@
 {
   "name": "pre-commit",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Automatically install pre-commit hooks for your npm modules.",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/observing/pre-commit.git"
+    "url": "git://github.com/dyw934854565/pre-commit.git"
   },
   "keywords": [
     "git",
@@ -26,8 +26,8 @@
     "test",
     "development"
   ],
-  "author": "Arnout Kazemier <opensource@observe.it>",
-  "homepage": "https://github.com/observing/pre-commit",
+  "author": "Arnout Kazemier <opensource@observe.it> duanyuwen <dyw934854565@sina.com>",
+  "homepage": "https://github.com/dyw934854565/pre-commit",
   "license": "MIT",
   "dependencies": {
     "cross-spawn": "^5.0.1",
@@ -37,7 +37,6 @@
   "devDependencies": {
     "assume": "~1.5.0",
     "istanbul": "0.4.x",
-    "mocha": "~3.3.0",
-    "pre-commit": "git://github.com/observing/pre-commit.git"
+    "mocha": "~3.3.0"
   }
 }
