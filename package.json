@@ -1,5 +1,5 @@
 {
-  "name": "pre-commit",
+  "name": "@dyw/pre-commit",
   "version": "1.2.3",
   "description": "Automatically install pre-commit hooks for your npm modules.",
   "main": "index.js",
