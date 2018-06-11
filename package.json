@@ -26,7 +26,7 @@
     "test",
     "development"
   ],
-  "author": "Arnout Kazemier <opensource@observe.it> duanyuwen <dyw934854565@sina.com>",
+  "author": "Arnout Kazemier <opensource@observe.it>",
   "homepage": "https://github.com/dyw934854565/pre-commit",
   "license": "MIT",
   "dependencies": {
@@ -38,5 +38,8 @@
     "assume": "~1.5.0",
     "istanbul": "0.4.x",
     "mocha": "~3.3.0"
+  },
+  "bugs": {
+    "url": "https://github.com/dyw934854565/pre-commit/issues"
   }
 }
