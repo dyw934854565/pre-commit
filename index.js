@@ -6,6 +6,7 @@ var spawn = require('cross-spawn')
   , util = require('util')
   , tty = require('tty');
 var fs = require('fs');
+var color = require('color/safe');
 var assign = require('lodash.assign');
 var forEach = require('lodash.foreach');
 /**
@@ -87,8 +88,8 @@ Hook.prototype.parse = function parse() {
     var value;
 
     if (flag in config) value = config[flag];
-    else if ('precommit.'+ flag in this.json) value = this.json['precommit.'+ flag];
-    else if ('pre-commit.'+ flag in this.json) value = this.json['pre-commit.'+ flag];
+    else if ('precommit.' + flag in this.json) value = this.json['precommit.' + flag];
+    else if ('pre-commit.' + flag in this.json) value = this.json['pre-commit.' + flag];
     else return;
 
     config[flag] = value;
@@ -101,7 +102,7 @@ Hook.prototype.parse = function parse() {
 
   if ('string' === typeof config.run) config.run = config.run.split(/[, ]+/);
   if (
-       !Array.isArray(config.run)
+    !Array.isArray(config.run)
     && this.json.scripts
     && this.json.scripts.test
     && this.json.scripts.test !== 'echo "Error: no test specified" && exit 1'
@@ -123,8 +124,8 @@ Hook.prototype.log = function log(lines, exit) {
   if (!Array.isArray(lines)) lines = lines.split('\n');
 
   var prefix = this.colors
-  ? '\u001b[38;5;166mpre-commit:\u001b[39;49m '
-  : 'pre-commit: ';
+    ? '\u001b[38;5;166mpre-commit:\u001b[39;49m '
+    : 'pre-commit: ';
 
   lines.push('');     // Whitespace at the end of the log.
   lines.unshift('');  // Whitespace at the beginning.
@@ -151,7 +152,7 @@ Hook.prototype.log = function log(lines, exit) {
 Hook.prototype.initialize = function initialize() {
   ['git', 'npm'].forEach(function each(binary) {
     try { this[binary] = which.sync(binary); }
-    catch (e) {}
+    catch (e) { }
   }, this);
 
   //
@@ -178,7 +179,7 @@ Hook.prototype.initialize = function initialize() {
 
   if (this.status.code) return this.log(Hook.log.status, 0);
   if (this.root.code) return this.log(Hook.log.root, 0);
-  
+
   this.status = this.status.stdout.toString().trim();
   this.root = this.root.stdout.toString().trim();
   this.diffs = this.diffs.stdout.toString().trim().split('\n') || [];
@@ -205,9 +206,55 @@ Hook.prototype.initialize = function initialize() {
     this.exec(this.git, ['config', 'commit.template', this.config.template]);
   }
 
-  if (!this.config.run) return this.log(Hook.log.run, 0);
+  if (!this.config.run) return this.log(Hook.log.run, false);
 };
 
+Hook.prototype.runLint = function runLint() {
+  var hooked = this;
+  if (hooked.config && hooked.config.lint === 'false') {
+    return hooked.exit(0);
+  }
+  var lintConfig = assign({
+    stylelint: ".(s?css)|(less)$",
+    eslint: ".jsx?$"
+  }, hooked.config.lint || {});
+  var allLintPass = true;
+  forEach(lintConfig, function (value, key) {
+    if (value === 'false') {
+      return;
+    }
+    var cmdpath = hooked.root + '/node_modules/.bin/' + key;
+    if (fs.existsSync(cmdpath)) {
+      var reg = new RegExp(value);
+      var pass = true;
+      var fileCount = 0;
+
+      console.log(color.green(key + ' validation start'));
+      forEach(hooked.diffs, function (diff) {
+        if (!reg.test(diff)) return;
+        fileCount++;
+        var res = hooked.exec(cmdpath, [diff, '--quiet', '--fix']);
+        if (res.code || res.stdout.toString().length) {
+          console.log(color.red(key + ' Failed: ' + diff));
+          // console.log(res.stdout.toString());
+          pass = false;
+          allLintPass = false;
+        } else {
+          console.log(color.green(key + ' Passed: ' + diff));
+        }
+      });
+      console.log(color[pass || !fileCount ? 'green' : 'red'](key + ' validation completed: ' + (fileCount ? (pass ? 'Passed' : 'Failed') : 'no files change') + '\n'));
+    } else {
+      if (hooked.config.lint && hooked.config.lint[key]) {
+        return hooked.log(hooked.format(Hook.log.notFoundError, key, key), 1);
+      }
+      hooked.log(hooked.format(Hook.log.notFoundWarn, key, key, key), false);
+    }
+  });
+  if (!allLintPass) {
+    hooked.exit(1);
+  }
+}
 /**
  * Run the specified hooks.
  *
@@ -218,44 +265,7 @@ Hook.prototype.run = function runner() {
 
   (function again(scripts) {
     if (!scripts.length) {
-      if (hooked.config && (hooked.config.lint === 'false' || typeof hooked.config.lint != 'object')) {
-        return hooked.exit(0);
-      }
-      var lintConfig = assign({
-        stylelint: ".(s?css)|(less)$",
-        eslint: ".jsx?$"
-      }, hooked.config.lint || {});
-      var allLintPass = true;
-      forEach(lintConfig, function(value, key) {
-        if (value === 'false') {
-          return;
-        }
-        var cmdpath = hooked.root + '/node_modules/.bin/' + key;
-        if (fs.existsSync(cmdpath)) {
-          var reg = new RegExp(value);
-          forEach(this.diffs, function (diff) {
-            var pass = true;
-            if (!reg.test(diff)) return;
-            var res = hooked.exec(cmdpath, [diff, '--quiet', '--fix']);
-            if (res.code || res.stdout.toString().length) {
-              console.log('\t\u001b[38;5;166m' + key + ' Failed: ' + diff + '\u001b[39;49m');
-              pass = false;
-              allLintPass = false;
-            } else {
-              console.log('\t\u001b[38;5;166m' + key + ' Passed: ' + diff + '\u001b[39;49m');
-            }
-            console.log(key + ' validation completed! ' + pass ? 'Passed' : 'Failed' + '\n');
-          });
-        } else {
-          if (hooked.config.lint && hooked.config.lint[key]) {
-            return hooked.log(hooked.format(Hook.log.notFoundError, key, key), 1);
-          }
-          hooked.log(hooked.format(Hook.log.notFoundWarn, key, key, key), false);
-        }
-      });
-      if (!allLintPass) {
-        hooked.exit(1);
-      }
+      hooked.runLint();
       return hooked.exit(0);
     }
 
@@ -278,7 +288,7 @@ Hook.prototype.run = function runner() {
 
       again(scripts);
     });
-  })(hooked.config.run.slice(0));
+  })((hooked.config.run || []).slice(0));
 };
 
 /**
