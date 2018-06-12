@@ -224,7 +224,10 @@ Hook.prototype.runLint = function runLint() {
       return;
     }
     var cmdpath = hooked.root + '/node_modules/.bin/' + key;
-    if (fs.existsSync(cmdpath)) {
+    if (!fs.existsSync(cmdpath)) {
+      cmdpath = which.sync(key);
+    }
+    if (cmdpath) {
       var reg = new RegExp(value);
       var pass = true;
       var fileCount = 0;

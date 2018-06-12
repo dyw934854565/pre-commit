@@ -1,3 +1,63 @@
+#pre-commit-with-lint
+
+It's a fork from pre-commit. uses as pre-commit to run scripts in package.json.
+
+and add lint to lint files only changed in this commit when pre-commit, without lint all your css or js files.so you can speed up when you commit.
+
+# how to use?
+
+you need do nothing bug install this package.
+
+```
+  npm install pre-commit-with-lint --save-dev
+```
+
+default this package will use stylelint to lint changed file as ".(s?css)|(less)$", use eslint to lint changed file as ".jsx?$".
+
+default setting like this.
+```
+{
+  "pre-commit": {
+    "lint": {
+      "stylelint": ".(s?css)|(less)$",
+      "eslint": ".jsx?$"
+    }
+  }
+}
+```
+
+you can add other linter, the key is linter name, value is reg string.
+```
+{
+  "pre-commit": {
+    "tslint": ".ts$"
+  }
+}
+```
+you can disable lint by set to "false".
+
+disable all linter
+```
+{
+  "pre-commit": {
+    "lint": "false"
+  }
+}
+```
+disable one linter
+```
+{
+  "pre-commit": {
+    "lint": {
+      "eslint": "false"
+    }
+  }
+}
+```
+
+if default linter no found, case warn.
+but if the linter set in package.json not found, it case error, and prevent this commit.
+
 # pre-commit
 
 [![Version npm][version]](http://browsenpm.org/package/pre-commit)[![Build Status][build]](https://travis-ci.org/observing/pre-commit)[![Dependencies][david]](https://david-dm.org/observing/pre-commit)[![Coverage Status][cover]](https://coveralls.io/r/observing/pre-commit?branch=master)
