@@ -6,7 +6,7 @@ var spawn = require('cross-spawn')
   , util = require('util')
   , tty = require('tty');
 var fs = require('fs');
-var color = require('color/safe');
+var color = require('colors/safe');
 var assign = require('lodash.assign');
 var forEach = require('lodash.foreach');
 /**
