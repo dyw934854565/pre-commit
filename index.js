@@ -5,7 +5,9 @@ var spawn = require('cross-spawn')
   , path = require('path')
   , util = require('util')
   , tty = require('tty');
-
+var fs = require('fs');
+var assign = require('lodash.assign');
+var forEach = require('lodash.foreach');
 /**
  * Representation of a hook runner.
  *
@@ -25,6 +27,7 @@ function Hook(fn, options) {
   this.git = '';              // The location of the `git` binary.
   this.root = '';             // The root location of the .git folder.
   this.status = '';           // Contents of the `git status`.
+  this.lint = {};
   this.exit = fn;             // Exit function.
 
   this.initialize();
@@ -118,7 +121,6 @@ Hook.prototype.parse = function parse() {
  */
 Hook.prototype.log = function log(lines, exit) {
   if (!Array.isArray(lines)) lines = lines.split('\n');
-  if ('number' !== typeof exit) exit = 1;
 
   var prefix = this.colors
   ? '\u001b[38;5;166mpre-commit:\u001b[39;49m '
@@ -136,7 +138,7 @@ Hook.prototype.log = function log(lines, exit) {
     else console.log(line);
   });
 
-  this.exit(exit, lines);
+  exit !== false && this.exit(exit, lines);
   return exit === 0;
 };
 
@@ -172,12 +174,14 @@ Hook.prototype.initialize = function initialize() {
 
   this.root = this.exec(this.git, ['rev-parse', '--show-toplevel']);
   this.status = this.exec(this.git, ['status', '--porcelain']);
+  this.diffs = this.exec(this.git, ['diff', '--cached', '--name-only', '--diff-filter=ACM']);
 
   if (this.status.code) return this.log(Hook.log.status, 0);
   if (this.root.code) return this.log(Hook.log.root, 0);
-
+  
   this.status = this.status.stdout.toString().trim();
   this.root = this.root.stdout.toString().trim();
+  this.diffs = this.diffs.stdout.toString().trim().split('\n') || [];
 
   try {
     this.json = require(path.join(this.root, 'package.json'));
@@ -188,7 +192,7 @@ Hook.prototype.initialize = function initialize() {
   // We can only check for changes after we've parsed the package.json as it
   // contains information if we need to suppress the empty message or not.
   //
-  if (!this.status.length && !this.options.ignorestatus) {
+  if (!this.status.length && !this.options.ignorestatus && !this.diffs.length) {
     return this.log(Hook.log.empty, 0);
   }
 
@@ -213,7 +217,47 @@ Hook.prototype.run = function runner() {
   var hooked = this;
 
   (function again(scripts) {
-    if (!scripts.length) return hooked.exit(0);
+    if (!scripts.length) {
+      if (hooked.config && (hooked.config.lint === 'false' || typeof hooked.config.lint != 'object')) {
+        return hooked.exit(0);
+      }
+      var lintConfig = assign({
+        stylelint: ".(s?css)|(less)$",
+        eslint: ".jsx?$"
+      }, hooked.config.lint || {});
+      var allLintPass = true;
+      forEach(lintConfig, function(value, key) {
+        if (value === 'false') {
+          return;
+        }
+        var cmdpath = hooked.root + '/node_modules/.bin/' + key;
+        if (fs.existsSync(cmdpath)) {
+          var reg = new RegExp(value);
+          forEach(this.diffs, function (diff) {
+            var pass = true;
+            if (!reg.test(diff)) return;
+            var res = hooked.exec(cmdpath, [diff, '--quiet', '--fix']);
+            if (res.code || res.stdout.toString().length) {
+              console.log('\t\u001b[38;5;166m' + key + ' Failed: ' + diff + '\u001b[39;49m');
+              pass = false;
+              allLintPass = false;
+            } else {
+              console.log('\t\u001b[38;5;166m' + key + ' Passed: ' + diff + '\u001b[39;49m');
+            }
+            console.log(key + ' validation completed! ' + pass ? 'Passed' : 'Failed' + '\n');
+          });
+        } else {
+          if (hooked.config.lint && hooked.config.lint[key]) {
+            return hooked.log(hooked.format(Hook.log.notFoundError, key, key), 1);
+          }
+          hooked.log(hooked.format(Hook.log.notFoundWarn, key, key, key), false);
+        }
+      });
+      if (!allLintPass) {
+        hooked.exit(1);
+      }
+      return hooked.exit(0);
+    }
 
     var script = scripts.shift();
 
@@ -295,7 +339,17 @@ Hook.log = {
     '  git commit -n (or --no-verify)',
     '',
     'This is ill-advised since the commit is broken.'
-  ].join('\n')
+  ].join('\n'),
+
+  notFoundError: [
+    '`%s` not found, please install the package first',
+    '  npm install %s --save-dev',
+  ].join('\n'),
+
+  notFoundWarn: [
+    '`%s` not found, skip `%s`. you can install this package',
+    '  npm install %s --save-dev',
+  ].join('\n'),
 };
 
 //
