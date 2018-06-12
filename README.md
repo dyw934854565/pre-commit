@@ -1,4 +1,4 @@
-#pre-commit-with-lint
+# pre-commit-with-lint
 
 It's a fork from pre-commit. uses as pre-commit to run scripts in package.json.
 
@@ -57,6 +57,15 @@ disable one linter
 
 if default linter no found, case warn.
 but if the linter set in package.json not found, it case error, and prevent this commit.
+
+disable run test
+```
+{
+  "pre-commit": {
+    "run": []
+  }
+}
+```
 
 # pre-commit
 
