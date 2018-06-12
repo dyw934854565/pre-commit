@@ -1,7 +1,7 @@
 {
   "name": "pre-commit-with-lint",
-  "version": "1.2.3",
-  "description": "Automatically install pre-commit hooks for your npm modules.",
+  "version": "1.2.4",
+  "description": "fork from pre-commit and add lint to lint changed files.",
   "main": "index.js",
   "scripts": {
     "echo": "echo \"echo test\"",
@@ -34,7 +34,7 @@
       "eslint": ".jsx?$"
     }
   },
-  "author": "Arnout Kazemier <opensource@observe.it>",
+  "author": "Arnout Kazemier <opensource@observe.it> duanyuwen <dyw934854565@sina.com>",
   "homepage": "https://github.com/dyw934854565/pre-commit",
   "license": "MIT",
   "dependencies": {
