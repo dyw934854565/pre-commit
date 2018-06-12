@@ -98,7 +98,9 @@ Hook.prototype.parse = function parse() {
   //
   // The scripts we need to run can be set under the `run` property.
   //
-  config.run = config.run || pre;
+  if (Array.isArray(pre)) {
+    config.run = pre;
+  }
 
   if ('string' === typeof config.run) config.run = config.run.split(/[, ]+/);
   if (
@@ -182,7 +184,8 @@ Hook.prototype.initialize = function initialize() {
 
   this.status = this.status.stdout.toString().trim();
   this.root = this.root.stdout.toString().trim();
-  this.diffs = this.diffs.stdout.toString().trim().split('\n') || [];
+  this.diffs = this.diffs.stdout.toString().trim();
+  this.diffs = this.diffs ? this.diffs.split('\n') : [];
 
   try {
     this.json = require(path.join(this.root, 'package.json'));
@@ -273,6 +276,9 @@ Hook.prototype.run = function runner() {
     }
 
     var script = scripts.shift();
+    if (!script) {
+      again(scripts);
+    }
 
     //
     // There's a reason on why we're using an async `spawn` here instead of the
