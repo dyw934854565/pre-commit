@@ -62,7 +62,6 @@ describe('pre-commit', function () {
       };
 
       hook.parse();
-
       assume(hook.config.run).is.length(3);
       assume(hook.config.run).contains('test');
       assume(hook.config.run).contains('cows');

@@ -98,7 +98,7 @@ Hook.prototype.parse = function parse() {
   //
   // The scripts we need to run can be set under the `run` property.
   //
-  if (Array.isArray(pre)) {
+  if (Array.isArray(pre) || typeof pre == 'string') {
     config.run = pre;
   }
 
@@ -123,6 +123,7 @@ Hook.prototype.parse = function parse() {
  * @api public
  */
 Hook.prototype.log = function log(lines, exit) {
+  if (exit === undefined) exit = 1;
   if (!Array.isArray(lines)) lines = lines.split('\n');
 
   var prefix = this.colors
