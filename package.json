@@ -1,6 +1,6 @@
 {
   "name": "pre-commit-with-lint",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "fork from pre-commit and add lint to lint changed files.",
   "main": "index.js",
   "scripts": {
