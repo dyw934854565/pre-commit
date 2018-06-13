@@ -229,7 +229,11 @@ Hook.prototype.runLint = function runLint() {
     }
     var cmdpath = hooked.root + '/node_modules/.bin/' + key;
     if (!fs.existsSync(cmdpath)) {
-      cmdpath = which.sync(key);
+      try {
+        cmdpath = which.sync(key);
+      } catch (e) {
+        cmdpath = '';
+      }
     }
     if (cmdpath) {
       var reg = new RegExp(value);
@@ -242,15 +246,15 @@ Hook.prototype.runLint = function runLint() {
         fileCount++;
         var res = hooked.exec(cmdpath, [diff, '--quiet', '--fix']);
         if (res.code || res.stdout.toString().length) {
-          console.log(color.red(key + ' Failed: ' + diff));
+          console.log(color.red('\t' + key + ' Failed: ' + diff));
           // console.log(res.stdout.toString());
           pass = false;
           allLintPass = false;
         } else {
-          console.log(color.green(key + ' Passed: ' + diff));
+          console.log(color.green('\t' + key + ' Passed: ' + diff));
         }
       });
-      console.log(color[pass || !fileCount ? 'green' : 'red'](key + ' validation completed: ' + (fileCount ? (pass ? 'Passed' : 'Failed') : 'no files change') + '\n'));
+      console.log(color.green(key + ' validation completed: ' + (fileCount ? (pass ? 'Passed' : color.red('Failed')) : 'no files change') + '\n'));
     } else {
       if (hooked.config.lint && hooked.config.lint[key]) {
         return hooked.log(hooked.format(Hook.log.notFoundError, key, key), 1);
