@@ -1,4 +1,4 @@
-# pre-commit-with-lint [中文文档](https://github.com/dyw934854565/pre-commit/blob/master/READMECN.md)
+# pre-commit-with-lint [中文文档](./READMECN.md)
 
 It's a fork from pre-commit. uses as pre-commit to run scripts in package.json.
 
