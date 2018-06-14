@@ -281,8 +281,8 @@ Hook.prototype.run = function runner() {
     }
 
     var script = scripts.shift();
-    if (!script) {
-      again(scripts);
+    if (!script) { // empty str, run next
+      return again(scripts);
     }
 
     //
