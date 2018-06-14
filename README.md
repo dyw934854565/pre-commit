@@ -1,4 +1,4 @@
-# pre-commit-with-lint
+# pre-commit-with-lint [中文文档](https://github.com/dyw934854565/pre-commit/blob/master/READMECN.md)
 
 It's a fork from pre-commit. uses as pre-commit to run scripts in package.json.
 
@@ -6,7 +6,7 @@ and add lint to lint files only changed in this commit when pre-commit, without 
 
 # how to use?
 
-you need do nothing bug install this package.
+you need do nothing but install this package.
 
 ```
   npm install pre-commit-with-lint --save-dev
@@ -26,11 +26,13 @@ default setting like this.
 }
 ```
 
-you can add other linter, the key is linter name, value is reg string.
+you can add other linter, the key is the linter name, value is a regexp string.
 ```
 {
   "pre-commit": {
-    "tslint": ".ts$"
+    "lint": {
+      "tslint": ".ts$"
+    }
   }
 }
 ```
@@ -55,10 +57,10 @@ disable one linter
 }
 ```
 
-if default linter no found, case warn.
+if default linter no found, it case warn.
 but if the linter set in package.json not found, it case error, and prevent this commit.
 
-disable run test
+disable default run test
 ```
 {
   "pre-commit": {
