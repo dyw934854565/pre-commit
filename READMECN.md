@@ -10,11 +10,11 @@
 ```
   npm install pre-commit-with-lint --save-dev
 ```
-如果你项目里使用了stylelint或者eslint，就会在提交的时候自动做lint操作了。如果没有会提醒你装包，但是不会阻止提交。
+如果你项目里使用了stylelint或者eslint，就会在提交的时候自动做lint操作了。如果没有会提醒你装包，但是不会阻止提交。
 
-stylelint默认会检测".(s?css)|(less)$"这个正则命中的文件。
+stylelint默认会检测".(s?css)|(less)$"这个正则命中的文件。
 
-eslint默认会检测".jsx?$"这个正则命中的文件。
+eslint默认会检测".jsx?$"这个正则命中的文件。
 
 如果lint报错会阻止本次提交。
 
