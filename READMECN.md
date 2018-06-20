@@ -1,26 +1,34 @@
 # pre-commit-with-lint
 
-从pre-commit包fork过来的，保持了原来的pre-commit的用法，在git提交的前执行scripts中的脚本。然后添加了一个功能，是对提交的改动的文件做语法检查操作，防止提交了不规范的代码。
+##介绍
 
-你也可以在scripts中加一条`lint`, 但是一个全量`lint`操作是很耗时的，也是没有必要的，所以写这个包。
+从pre-commit包fork过来的，保持了原有的pre-commit的用法，在git提交前执行scripts中被指定的脚本。
+
+**新增**了对本次提交中**改动的文件**做语法检查操作的功能，防止不规范的代码被提交。
+
+与在scripts中添加`lint`相比,节省了检查全部文件的时间。
 
 # 如何使用
 
-装包就行了，用`pre-commit-with-lint`替换原来的`pre-commit`。
+安装 `pre-commit-with-lint` 替换 `pre-commit`。
+
 ```
   npm install pre-commit-with-lint --save-dev
 ```
-如果你项目里使用了stylelint或者eslint，就会在提交的时候自动做lint操作了。如果没有会提醒你装包，但是不会阻止提交。
 
-stylelint默认会检测".(s?css)|(less)$"这个正则命中的文件。
+如果项目中使用了stylelint或者eslint，那么提交的时会自动进行lint操作。如果没有则会提醒装包，但是不会阻止提交。
 
-eslint默认会检测".jsx?$"这个正则命中的文件。
+stylelint 默认检测 ".(s?css)|(less)$" 正则命中的文件。
+
+eslint 默认检测 ".jsx?$" 正则命中的文件。
 
 如果lint报错会阻止本次提交。
 
-# 修改正则字符串
+## 修改配置
 
-默认的配置像这样，可以修改，但是注意，你一旦改了这个这个配置，但是没有装包，会直接抛错，阻止提交。如果你就是想要这种效果，可以把这个默认配置拷贝到package.json里。
+默认配置如下，可以根据项目需求进行修改。需要注意的是，一旦修改了配置后，如果没有安装相应的包，会直接报错阻止提交。
+因此可以通过这个特性来提醒项目成员安装指定包。
+
 ```
 {
   "pre-commit": {
@@ -32,31 +40,28 @@ eslint默认会检测".jsx?$"这个正则命中的文件。
 }
 ```
 
-# 取消lint操作
+## 取消lint操作
 
-项目可能没加lint, 但是提交的时候会出警告。不想看到警告可以取消lint操作。
+项目中不需要lint时，可以关闭lint功能来去除警告。
 
-取消所有
 ```
 {
   "pre-commit": {
-    "lint": "false"
+    "lint": "false"   //取消所有lint
   }
 }
-```
 
-取消单个
-```
 {
   "pre-commit": {
     "lint": {
-      "eslint": "false"
+      "eslint": "false"   //取消指定lint
     }
   }
 }
 ```
 
-# 增加其他操作
+## 增加其他操作
+
 ```
 {
   "pre-commit": {
@@ -67,14 +72,10 @@ eslint默认会检测".jsx?$"这个正则命中的文件。
 }
 ```
 
-# 说明
-
-增加的lint操作，其实就是：遍历所有改动的文件，如果命中正则，就去./node_modules/.bin/目录下去找对应的操作，没有再去全局找。然后执行对应操作，如果这个执行的有返回就会阻止提交操作。
-```
-    $lintname $changedfile --fix --quiet
-```
+## 说明
 
 lint操作是在scripts执行之后进行的，`pre-commit`默认执行`test`。如果不需要可以配置成空数组
+
 ```
 {
   "pre-commit": {
