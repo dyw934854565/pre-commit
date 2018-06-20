@@ -2,21 +2,24 @@
 
 [[中文文档]](./READMECN.md)
 
-It's a fork from pre-commit. uses as pre-commit to run scripts in package.json.
+## introduction
 
-and add lint to lint files only changed in this commit when pre-commit, without lint all your css or js files.so you can speed up when you commit.
+This registry forked from pre-commit.It will run scripts in package.json which is specified in the config as same as pre-commit.
 
-# how to use?
+And there is a extra feature. It can add some lint and use lint to examine only the changed file in current commit, instead of examine the whole file in the project. It obviously will save some time in the commit.
 
-you need do nothing but install this package.
+## how to use?
+
+Just install this package.
 
 ```
   npm install pre-commit-with-lint --save-dev
 ```
 
-default this package will use stylelint to lint changed file as ".(s?css)|(less)$", use eslint to lint changed file as ".jsx?$".
+This package will use stylelint for ".(s?css)|(less)$" file and eslint for ".jsx?$" file as default, so you need to install the stylelint, eslint, or someone which you want to use.
 
-default setting like this.
+The default config is as follows:
+
 ```
 {
   "pre-commit": {
@@ -28,7 +31,8 @@ default setting like this.
 }
 ```
 
-you can add other linter, the key is the linter name, value is a regexp string.
+You can add other linter freely.
+
 ```
 {
   "pre-commit": {
@@ -38,35 +42,36 @@ you can add other linter, the key is the linter name, value is a regexp string.
   }
 }
 ```
-you can disable lint by set to "false".
 
-disable all linter
+You can disable lint by set "false".
+
+
 ```
 {
   "pre-commit": {
-    "lint": "false"
+    "lint": "false"   //disable all linter
   }
 }
-```
-disable one linter
-```
+
 {
   "pre-commit": {
     "lint": {
-      "eslint": "false"
+      "eslint": "false"   //disable one linter
     }
   }
 }
 ```
 
-if default linter no found, it case warn.
-but if the linter set in package.json not found, it case error, and prevent this commit.
+If some linter are set in the package.json of project without install, there will throw a error in the console and prevent the commit. So you can set the linter in the package.json and remind the other member in the project to install by this error.
 
-disable default run test
+And don't worry, if there is no config and default linter, there only throw the warning.
+
+If you don't need run scripts, you can set the empty array like this:
+
 ```
 {
   "pre-commit": {
-    "run": []
+    "run": []   //disable default run test
   }
 }
 ```
