@@ -1,8 +1,8 @@
 # pre-commit-with-lint 
 
-## introduction
+[[中文文档]](./READMECN.md)
 
-[中文文档](./READMECN.md)
+## introduction
 
 This registry forked from pre-commit.It will run scripts in package.json which is specified in the config as same as pre-commit.
 
