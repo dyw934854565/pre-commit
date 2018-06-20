@@ -4,9 +4,9 @@
 
 ## introduction
 
-This registry forked from pre-commit.It will run scripts in package.json which is specified in the config as same as pre-commit.
+This repository forked from pre-commit. It will run scripts in the package.json which is specified in the config as same as pre-commit.
 
-And there is a extra feature. It can add some lint and use lint to examine only the changed file in current commit, instead of examine the whole file in the project. It obviously will save some time in the commit.
+And there is a new feature. It can add some lint and use lint to examine only **the changed file** in current commit, instead of examine the whole file of the project. It obviously will save some time in the commit.
 
 ## how to use?
 
