@@ -1,6 +1,6 @@
 # pre-commit-with-lint 
 
-[中文文档](./READMECN.md)
+[[中文文档]](./READMECN.md)
 
 It's a fork from pre-commit. uses as pre-commit to run scripts in package.json.
 
